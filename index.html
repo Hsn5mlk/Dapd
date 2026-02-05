@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الكنز الملكي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50; --secondary: #3498db; --accent: #f1c40f;
+            --danger: #e74c3c; --success: #2ecc71; --dark: #1a252f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #f0f2f5; padding-top: 110px; overflow-x: hidden; }
+
+        /* الهيدر ثابت */
+        header {
+            background: linear-gradient(135deg, var(--primary), green);
+            color: white; padding: 15px 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-content { display: flex; align-items: center; gap: 15px; width: 100%; justify-content: space-between; }
+        .user-stats { display: flex; align-items: center; gap: 12px; }
+        .gem-count { background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 20px; border: 1px solid var(--accent); color: var(--accent); font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
+        .user-profile-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; cursor: pointer; object-fit: cover; background: #eee; }
+
+        /* القائمة الجانبية */
+        .sidenav {
+            height: 100%; width: 0; position: fixed; z-index: 1500; top: 0; right: 0;
+            background-color: var(--dark); overflow-x: hidden; transition: 0.5s; padding-top: 60px;
+        }
+        .sidenav a {
+            padding: 15px 25px; text-decoration: none; font-size: 18px; color: #ecf0f1;
+            display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #2c3e50; cursor: pointer;
+        }
+        .sidenav a:hover { background-color: var(--primary); color: var(--accent); }
+        .sidenav .closebtn { position: absolute; top: 10px; left: 25px; font-size: 36px; color: white; cursor: pointer; }
+
+        /* واجهة الكنز الرئيسية */
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .treasure-section { text-align: center; padding: 40px 20px; background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .treasure-btn { font-size: 110px; background: none; border: none; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1)); }
+        .treasure-btn:active { transform: scale(0.9); }
+        .treasure-btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+        
+        .status-badge { background: #f8f9fa; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: bold; color: var(--primary); border: 1px solid #ddd; margin-bottom: 20px; display: inline-block; }
+        .timer { margin-top: 15px; color: var(--danger); font-weight: bold; font-size: 16px; }
+        /* المودالات */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--primary); }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
+        
+        .btn-full { width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; transition: 0.3s; }
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .ref-box { background: #eef2f7; border: 2px dashed var(--secondary); padding: 15px; border-radius: 12px; text-align: center; margin: 15px 0; }
+        .ref-code { font-size: 24px; letter-spacing: 3px; color: var(--primary); font-weight: 900; }
+
+        /* كروت الاشتراكات والسوق */
+        .sub-card, .product-card { border: 2px solid #f0f0f0; border-radius: 15px; padding: 20px; margin-bottom: 15px; text-align: center; transition: 0.3s; background: white; }
+        .sub-card:hover, .product-card:hover { border-color: var(--secondary); background: #f9fcff; }
+        .product-img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+        .seller-info { font-size: 12px; color: #777; margin-top: 5px; }
+
+        .hidden { display: none; }
+        .close-x { position: absolute; top: 15px; left: 15px; font-size: 24px; cursor: pointer; color: #999; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <i class="fas fa-moon" style="font-size:26px; cursor:pointer; margin-right: 15px;" onclick="window.open('https://freeimage.host/', '_blank')"></i>
+            <div class="user-stats">
+                <div class="gem-count"><i class="fas fa-gem"></i> <span id="gemValue">0</span></div>
+                <img src="" id="userHeaderImg" class="user-profile-img hidden" onclick="showModal('profileModal')">
+                <button id="authBtn" class="btn-primary" style="padding: 7px 20px; border-radius: 8px;" onclick="showModal('authModal')">دخول</button>
+            </div>
+            
+            <h2 style="font-size: 18px; font-weight: 800;">⚙️</h2>
+        </div>
+    </header>
+
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a onclick="showModal('profileModal')"><i class="fas fa-user"></i> الملف الشخصي</a>
+        <a onclick="showModal('subsModal')"><i class="fas fa-crown"></i> الاشتراكات</a>
+        <a onclick="showModal('marketModal')"><i class="fas fa-store"></i> السوق</a>
+        <a onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+    </div>
+
+    <div class="container">
+        <div class="treasure-section">
+            <div id="planDisplay" class="status-badge"> الفانوس</div>
+            <br>
+            <button id="collectBtn" class="treasure-btn" style="background: url('https://iili.io/fDra8zu.gif') center/contain no-repeat; width: 120px; height: 120px; border: none;"></button>
+            <h2 id="userNameDisplay">أهلاً بك يا بطل!</h2>
+            <p id="gemInfoText"> المس الفانوس يومياً لتربح الجواهر</p>
+            <div id="cooldownTimer" class="timer hidden"></div>
+        </div>
+    </div>
+
+    <!-- مودال الاشتراكات -->
+    <div id="subsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('subsModal')">&times;</span>
+            <h3>خطط الاشتراك</h3>
+            <div class="sub-card">
+                <h4>الفانوس الأساسي</h4>
+                <p>50 جوهرة يومياً</p>
+                <p>مجاناً</p>
+                <button class="btn-full btn-success" onclick="buySub(50, 0)" disabled>مفعل</button>
+            </div>
+            <div class="sub-card">
+                <h4>الفانوس البرونزي</h4>
+                <p>150 جوهرة يومياً</p>
+                <p>تكلفة: 300 جوهرة</p>
+                <button class="btn-full btn-primary" onclick="buySub(150, 300)">ترقية</button>
+            </div>
+            <div class="sub-card">
+                <h4>الفانوس الذهبي</h4>
+                <p>500 جوهرة يومياً</p>
+                <p>تكلفة: 1000 جوهرة</p>
+                <button class="btn-full btn-primary" onclick="buySub(500, 1000)">ترقية</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال السوق -->
+    <div id="marketModal" class="modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('marketModal')">&times;</span>
+            <h3>سوق الجواهر</h3>
+            <button class="btn-full btn-success" onclick="showModal('addProductModal')">إضافة منتج للبيع</button>
+            <div id="productsList"></div>
+        </div>
+    </div>
+
+    <!-- مودال إضافة منتج -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('addProductModal')">&times;</span>
+            <h3>إضافة منتج للبيع</h3>
+            <div class="form-group"><label>اسم المنتج</label><input type="text" id="prodName"></div>
+            <div class="form-group"><label>وصف المنتج</label><textarea id="prodDesc" rows="3"></textarea></div>
+            <div class="form-group"><label>رابط صورة المنتج</label><input type="url" id="prodImg" placeholder="https://..."></div>
+            <div class="form-group"><label>السعر (جواهر)</label><input type="number" id="prodPrice" min="1"></div>
+            <button class="btn-full btn-primary" onclick="handleUploadProduct()">نشر المنتج</button>
+        </div>
+    </div>
+
+    <!-- مودال التسجيل والدخول -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('authModal')">&times;</span>
+            <div id="loginFormSection">
+                <h3>تسجيل الدخول</h3>
+                <div class="form-group"><label>البريد</label><input type="email" id="loginEmail"></div>
+                <div class="form-group"><label>كلمة المرور</label><input type="password" id="loginPass"></div>
+                <button class="btn-full btn-primary" onclick="handleLogin()">دخول</button>
+                <p style="text-align:center; margin-top:15px; cursor:pointer; color:var(--secondary)" onclick="toggleAuth()">إنشاء حساب جديد</p>
+            </div>
+            <div id="registerFormSection" class="hidden">
+                <h3>حساب جديد</h3>
+                <div class="form-group"><label>الأسم</label><input type="text" id="regName"></div>
+                <div class="form-group"><label>البريد</label><input type="email" id="regEmail"></div>
+                <div class="form-group"><label>رابط الصورة</label><input type="url" id="regPhoto" placeholder="https://..."></div>
+                <div class="form-group"><label>كلمة المرور</label><input type="password" id="regPass"></div>
+                
+                <button class="btn-full btn-primary" onclick="handleRegister()">تسجيل</button>
+                <p style="text-align:center; margin-top:15px; cursor:pointer; color:var(--secondary)" onclick="toggleAuth()">لديك حساب؟ دخول</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال الملف الشخصي -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('profileModal')">&times;</span>
+            <h3 style="text-align:center;">تفاصيل العضوية</h3>
+            <div class="ref-box">
+                <p style="font-size:12px; color:#666; margin-bottom:5px;">رمز الفانوس الخاص بك</p>
+                <div class="ref-code" id="displayMyRefCode">------</div>
+            </div>
+            <div class="form-group"><label>الأسم</label><input type="text" id="editName"></div>
+            <div class="form-group"><label>رابط الصورة</label><input type="url" id="editPhoto"></div>
+            <button class="btn-full btn-success" onclick="handleUpdateProfile()">حفظ التعديلات</button>
+            <button class="btn-full btn-danger" onclick="handleDeleteAccount()">حذف الحساب نهائياً</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYKCCTcurNcJslrNKqdiJCoIIK-YZArB4",
+            authDomain: "sbaq-fc46f.firebaseapp.com",
+            projectId: "sbaq-fc46f",
+            storageBucket: "sbaq-fc46f.firebasestorage.app",
+            messagingSenderId: "1026865750415",
+            appId: "1:1026865750415:web:0ee39a717bcafaa0d06bfa"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                onSnapshot(doc(db, "users", user.uid), (snap) => {
+                    if (snap.exists()) {
+                        userData = snap.data();
+                        document.getElementById('gemValue').textContent = userData.gems || 0;
+                        document.getElementById('displayMyRefCode').textContent = userData.myRefCode;
+                        document.getElementById('userNameDisplay').textContent = `أهلاً، ${userData.name}`;
+                        document.getElementById('userHeaderImg').src = user.photoURL || 'https://via.placeholder.com/40';
+                        document.getElementById('userHeaderImg').classList.remove('hidden');
+                        document.getElementById('authBtn').classList.add('hidden');
+                        document.getElementById('planDisplay').textContent = `الفانوس: ${userData.dailyRate || 50} جوهرة / يوم`;
+                        document.getElementById('editName').value = userData.name;
+                        document.getElementById('editPhoto').value = user.photoURL || '';
+                        handleTimer(userData.lastCollect);
+                    }
+                });
+            } else {
+                currentUser = null;
+                userData = null;
+                document.getElementById('userHeaderImg').classList.add('hidden');
+                document.getElementById('authBtn').classList.remove('hidden');
+                document.getElementById('gemValue').textContent = "0";
+                document.getElementById('userNameDisplay').textContent = "أهلاً بك يا بطل!";
+                document.getElementById('planDisplay').textContent = "الفانوس";
+            }
+        });
+
+        window.handleUpdateProfile = async () => {
+            if (!currentUser) return alert("يجب تسجيل الدخول أولاً");
+            
+            const newName = document.getElementById('editName').value.trim();
+            const newPhoto = document.getElementById('editPhoto').value.trim();
+            
+            if (!newName) return alert("الاسم مطلوب");
+            
+            try {
+                // تحديث الملف الشخصي في Firebase Authentication
+                await updateProfile(currentUser, {
+                    displayName: newName,
+                    photoURL: newPhoto
+                });
+                
+                // تحديث البيانات في Firestore
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    name: newName
+                });
+                
+                showCustomAlert("تم تحديث الملف الشخصي بنجاح!");
+                closeModal('profileModal');
+                
+                // تحديث الواجهة فوراً
+                if (userData) {
+                    userData.name = newName;
+                    document.getElementById('userNameDisplay').textContent = `أهلاً، ${newName}`;
+                    document.getElementById('userHeaderImg').src = newPhoto || 'https://via.placeholder.com/40';
+                }
+                
+            } catch (error) {
+                showCustomAlert("حدث خطأ أثناء تحديث الملف الشخصي: " + error.message);
+            }
+        };
+
+        window.handleDeleteAccount = async () => {
+            if (!currentUser) return alert("لا يوجد حساب مسجل");
+            
+            if (!showCustomAlert("هل أنت متأكد من حذف حسابك نهائياً؟ هذه العملية لا يمكن التراجع عنها!")) {
+                return;
+            }
+            
+            try {
+                // حذف بيانات المستخدم من Firestore
+                await deleteDoc(doc(db, "users", currentUser.uid));
+                
+                // حذف المستخدم من Firebase Authentication
+                await deleteUser(currentUser);
+                
+                showCustomAlert("تم حذف حسابك بنجاح");
+                window.location.reload();
+                
+            } catch (error) {
+                showCustomAlert("حدث خطأ أثناء حذف الحساب: " + error.message);
+            }
+        };
+
+        // --- وظائف السوق ---
+        window.handleUploadProduct = async () => {
+            if(!currentUser) return alert("سجل دخول أولاً");
+            const name = document.getElementById('prodName').value;
+            const desc = document.getElementById('prodDesc').value;
+            const img = document.getElementById('prodImg').value;
+            const price = parseInt(document.getElementById('prodPrice').value);
+
+            if(!name || !desc || !img || !price) return alert("أكمل البيانات");
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    name, desc, img, price,
+                    sellerId: currentUser.uid,
+                    sellerName: userData.name,
+                    createdAt: Date.now()
+                });
+                alert("تم نشر المنتج بنجاح!");
+                closeModal('addProductModal');
+            } catch(e) { alert(e.message); }
+        };
+
+        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
+            const list = document.getElementById('productsList');
+            list.innerHTML = "";
+            snap.forEach(docSnap => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                list.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.img}" class="product-img">
+                        <h4>${p.name}</h4>
+                        <p style="font-size:13px; color:#555;">${p.desc}</p>
+                        <span class="price">${p.price} جوهرة</span>
+                        <div class="seller-info">البائع: ${p.sellerName}</div>
+                        <button class="btn-full btn-primary" onclick="buyProduct('${id}', ${p.price}, '${p.sellerId}')">شراء الآن</button>
+                    </div>
+                `;
+            });
+        });
+
+        window.buyProduct = async (prodId, price, sellerId) => {
+            if(!currentUser) return showModal('authModal');
+            if(currentUser.uid === sellerId) return alert("لا يمكنك شراء منتجك الخاص!");
+            if(userData.gems < price) return alert("جواهرك لا تكفي!");
+
+            if(confirm(`هل تريد شراء المنتج مقابل ${price} جوهرة؟`)) {
+                try {
+                    const commission = Math.floor(price * 0.05);
+                    const sellerNet = price - commission;
+
+                    // خصم من المشتري
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        gems: userData.gems - price
+                    });
+
+                    // إضافة للبائع
+                    const sellerRef = doc(db, "users", sellerId);
+                    const sellerSnap = await getDoc(sellerRef);
+                    if(sellerSnap.exists()){
+                        await updateDoc(sellerRef, {
+                            gems: (sellerSnap.data().gems || 0) + sellerNet
+                        });
+                    }
+
+                    alert(`تمت عملية الشراء بنجاح! تم تحويل ${sellerNet} جوهرة للبائع بعد خصم العمولة.`);
+                } catch(e) { alert("حدث خطأ في العملية"); }
+            }
+        };
+
+        // --- بقية الوظائف الأساسية ---
+    function showCustomAlert(message) {
+  // إخفاء اسم الصفحة والروابط
+  const originalTitle = document.title;
+  document.title = "الموقع"; // اسم عام بدل اسم الصفحة الحقيقي
+  
+  // إنشاء عنصر التنبيه
+  const alertOverlay = document.createElement('div');
+  alertOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+  
+  const alertBox = document.createElement('div');
+  alertBox.style.cssText = `
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+  `;
+  
+  const messageText = document.createElement('p');
+  messageText.textContent = message;
+  messageText.style.cssText = `
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  `;
+  
+  const okButton = document.createElement('button');
+  okButton.textContent = 'موافق';
+  okButton.style.cssText = `
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  `;
+  
+  okButton.onmouseover = () => okButton.style.background = '#2980b9';
+  okButton.onmouseout = () => okButton.style.background = '#3498db';
+  
+  okButton.onclick = () => {
+    document.body.removeChild(alertOverlay);
+    document.title = originalTitle; // استعادة اسم الصفحة الأصلي
+  };
+  
+  alertBox.appendChild(messageText);
+  alertBox.appendChild(okButton);
+  alertOverlay.appendChild(alertBox);
+  
+  // إخفاء الروابط في التبويب
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    link.setAttribute('data-original-href', link.href);
+    link.href = 'javascript:void(0)';
+  });
+  
+  // استعادة الروابط عند إغلاق التنبيه
+  const restoreLinks = () => {
+    links.forEach(link => {
+      const originalHref = link.getAttribute('data-original-href');
+      if (originalHref) link.href = originalHref;
+    });
+  };
+  
+  okButton.onclick = () => {
+    document.body.removeChild(alertOverlay);
+    document.title = originalTitle;
+    restoreLinks();
+  };
+  
+  document.body.appendChild(alertOverlay);
+  
+  // إغلاق التنبيه عند النقر خارج الصندوق
+  alertOverlay.onclick = (e) => {
+    if (e.target === alertOverlay) {
+      document.body.removeChild(alertOverlay);
+      document.title = originalTitle;
+      restoreLinks();
+    }
+  };
+  
+  // التركيز على الزر
+  okButton.focus();
+}
+        window.handleRegister = async () => {
+            const name = document.getElementById('regName').value, email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPass').value, photo = document.getElementById('regPhoto').value;
+            const ref = Math.floor(100000 + Math.random() * 900000).toString();
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: name, photoURL: photo });
+                await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, name, email, myRefCode: ref, gems: 10, dailyRate: 50, lastCollect: null });
+                closeModal('authModal');
+            } catch (e) { alert(e.message); }
+        };
+
+        window.handleLogin = async () => {
+            const email = document.getElementById('loginEmail').value, pass = document.getElementById('loginPass').value;
+            try { await signInWithEmailAndPassword(auth, email, pass); closeModal('authModal'); } catch (e) { alert(e.message); }
+        };
+
+        document.getElementById('collectBtn').onclick = async () => {
+            if (!currentUser) return showModal('authModal');
+            const now = Date.now();
+            if (userData.lastCollect && (now - userData.lastCollect < 86400000)) return;
+            const rate = userData.dailyRate || 50;
+            await updateDoc(doc(db, "users", currentUser.uid), { gems: (userData.gems || 0) + rate, lastCollect: now });
+            alert(`مبروك! استلمت ${rate} جوهرة`);
+        };
+
+        window.buySub = async (rate, cost) => {
+            if (userData.gems < cost) return alert("جواهرك لا تكفي!");
+            await updateDoc(doc(db, "users", currentUser.uid), { gems: userData.gems - cost, dailyRate: rate });
+            alert("تمت الترقية!"); closeModal('subsModal');
+        };
+
+        function handleTimer(last) {
+            const timerDiv = document.getElementById('cooldownTimer'), btn = document.getElementById('collectBtn');
+            if(!last) return;
+            const update = () => {
+                const diff = 86400000 - (Date.now() - last);
+                if (diff <= 0) { timerDiv.classList.add('hidden'); btn.disabled = false; }
+                else {
+                    btn.disabled = true; timerDiv.classList.remove('hidden');
+                    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+                    timerDiv.textContent = `متاح بعد: ${h}:${m}:${s}`;
+                }
+            };
+            setInterval(update, 1000); update();
+        }
+        window.openNav = () => document.getElementById("mySidenav").style.width = "270px";
+        window.closeNav = () => document.getElementById("mySidenav").style.width = "0";
+        window.showModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+        window.toggleAuth = () => { document.getElementById('loginFormSection').classList.toggle('hidden'); document.getElementById('registerFormSection').classList.toggle('hidden'); };
+        window.logout = () => signOut(auth).then(() => location.reload());
+    </script>
+</body>
+</html>
