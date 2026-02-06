@@ -72,6 +72,15 @@
 
         .hidden { display: none; }
         .close-x { position: absolute; top: 15px; left: 15px; font-size: 24px; cursor: pointer; color: #999; }
+        
+        /* ستار جديدة للجواهر */
+    #profileModal .ref-box {
+    display: none;
+}
+        .star-gem { color: gold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); }
+        .star-icon { position: relative; }
+        .star-icon:after { content: '★'; }
+        .fa-star { color: gold; }
     </style>
 </head>
 <body>
@@ -80,7 +89,8 @@
         <div class="header-content">
             <i class="fas fa-moon" style="font-size:26px; cursor:pointer; margin-right: 15px;" onclick="window.open('https://freeimage.host/', '_blank')"></i>
             <div class="user-stats">
-                <div class="gem-count"><i class="fas fa-gem"></i> <span id="gemValue">0</span></div>
+                <!-- تعديل: تغيير شكل الجواهر إلى نجمة -->
+                <div class="gem-count"><i class="fas fa-star star-gem"></i> <span id="gemValue">0</span></div>
                 <img src="" id="userHeaderImg" class="user-profile-img hidden" onclick="showModal('profileModal')">
                 <button id="authBtn" class="btn-primary" style="padding: 7px 20px; border-radius: 8px;" onclick="showModal('authModal')">دخول</button>
             </div>
@@ -103,9 +113,9 @@
             <br>
             <button id="collectBtn" class="treasure-btn" style="background: url('https://iili.io/fDra8zu.gif') center/contain no-repeat; width: 120px; height: 120px; border: none;"></button>
             <h2 id="userNameDisplay">أهلاً بك يا بطل!</h2>
-            <p id="gemInfoText"> المس الفانوس يومياً لتربح الجواهر</p>
-            <div id="cooldownTimer" class="timer hidden"></div>
-        </div>
+           
+            
+        
     </div>
 
     <!-- مودال الاشتراكات -->
@@ -115,19 +125,22 @@
             <h3>خطط الاشتراك</h3>
             <div class="sub-card">
                 <h4>الفانوس الأساسي</h4>
-                <p>50 جوهرة يومياً</p>
+                <!-- تعديل: تغيير شكل الجواهر إلى نجمة -->
+                <p><i class="fas fa-star star-gem"></i> 50 جوهرة يومياً</p>
                 <p>مجاناً</p>
                 <button class="btn-full btn-success" onclick="buySub(50, 0)" disabled>مفعل</button>
             </div>
             <div class="sub-card">
                 <h4>الفانوس البرونزي</h4>
-                <p>150 جوهرة يومياً</p>
+                <!-- تعديل: تغيير شكل الجواهر إلى نجمة -->
+                <p><i class="fas fa-star star-gem"></i> 150 جوهرة يومياً</p>
                 <p>تكلفة: 300 جوهرة</p>
                 <button class="btn-full btn-primary" onclick="buySub(150, 300)">ترقية</button>
             </div>
             <div class="sub-card">
                 <h4>الفانوس الذهبي</h4>
-                <p>500 جوهرة يومياً</p>
+                <!-- تعديل: تغيير شكل الجواهر إلى نجمة -->
+                <p><i class="fas fa-star star-gem"></i> 500 جوهرة يومياً</p>
                 <p>تكلفة: 1000 جوهرة</p>
                 <button class="btn-full btn-primary" onclick="buySub(500, 1000)">ترقية</button>
             </div>
@@ -152,7 +165,8 @@
             <div class="form-group"><label>اسم المنتج</label><input type="text" id="prodName"></div>
             <div class="form-group"><label>وصف المنتج</label><textarea id="prodDesc" rows="3"></textarea></div>
             <div class="form-group"><label>رابط صورة المنتج</label><input type="url" id="prodImg" placeholder="https://..."></div>
-            <div class="form-group"><label>السعر (جواهر)</label><input type="number" id="prodPrice" min="1"></div>
+            <!-- تعديل: تغيير شكل الجواهر إلى نجمة -->
+            <div class="form-group"><label>السعر (جواهر <i class="fas fa-star star-gem" style="font-size:14px;"></i>)</label><input type="number" id="prodPrice" min="1"></div>
             <button class="btn-full btn-primary" onclick="handleUploadProduct()">نشر المنتج</button>
         </div>
     </div>
@@ -163,20 +177,25 @@
             <span class="close-x" onclick="closeModal('authModal')">&times;</span>
             <div id="loginFormSection">
                 <h3>تسجيل الدخول</h3>
-                <div class="form-group"><label>البريد</label><input type="email" id="loginEmail"></div>
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="loginEmail"></div>
                 <div class="form-group"><label>كلمة المرور</label><input type="password" id="loginPass"></div>
                 <button class="btn-full btn-primary" onclick="handleLogin()">دخول</button>
                 <p style="text-align:center; margin-top:15px; cursor:pointer; color:var(--secondary)" onclick="toggleAuth()">إنشاء حساب جديد</p>
             </div>
             <div id="registerFormSection" class="hidden">
                 <h3>حساب جديد</h3>
-                <div class="form-group"><label>الأسم</label><input type="text" id="regName"></div>
-                <div class="form-group"><label>البريد</label><input type="email" id="regEmail"></div>
-                <div class="form-group"><label>رابط الصورة</label><input type="url" id="regPhoto" placeholder="https://..."></div>
+                <div class="form-group"><label>الأسم الكامل</label><input type="text" id="regName"></div>
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="regEmail"></div>
+                <div class="form-group">
+                    <label>رابط الصورة الشخصية</label>
+                    <input type="url" id="regPhoto" placeholder="https://...">
+                    <small style="color:#666;">(اختياري)</small>
+                </div>
                 <div class="form-group"><label>كلمة المرور</label><input type="password" id="regPass"></div>
                 
-                <button class="btn-full btn-primary" onclick="handleRegister()">تسجيل</button>
-                <p style="text-align:center; margin-top:15px; cursor:pointer; color:var(--secondary)" onclick="toggleAuth()">لديك حساب؟ دخول</p>
+                <button class="btn-full btn-primary" onclick="handleRegister()">تسجيل حساب جديد</button>
+                <p id="registerMessage" style="text-align:center; margin-top:10px; font-size:14px; color:#666;"></p>
+                <p style="text-align:center; margin-top:15px; cursor:pointer; color:var(--secondary)" onclick="toggleAuth()">لديك حساب بالفعل؟ تسجيل الدخول</p>
             </div>
         </div>
     </div>
@@ -187,11 +206,15 @@
             <span class="close-x" onclick="closeModal('profileModal')">&times;</span>
             <h3 style="text-align:center;">تفاصيل العضوية</h3>
             <div class="ref-box">
-                <p style="font-size:12px; color:#666; margin-bottom:5px;">رمز الفانوس الخاص بك</p>
+                <h4>رابط الإحالة الخاص بك</h4>
                 <div class="ref-code" id="displayMyRefCode">------</div>
             </div>
-            <div class="form-group"><label>الأسم</label><input type="text" id="editName"></div>
-            <div class="form-group"><label>رابط الصورة</label><input type="url" id="editPhoto"></div>
+            <div class="form-group"><label>الأسم الكامل</label><input type="text" id="editName"></div>
+            <div class="form-group">
+                <label>رابط الصورة الشخصية</label>
+                <input type="url" id="editPhoto">
+                <small style="color:#666;">(اختياري)</small>
+            </div>
             <button class="btn-full btn-success" onclick="handleUpdateProfile()">حفظ التعديلات</button>
             <button class="btn-full btn-danger" onclick="handleDeleteAccount()">حذف الحساب نهائياً</button>
         </div>
@@ -200,7 +223,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDYKCCTcurNcJslrNKqdiJCoIIK-YZArB4",
@@ -230,7 +253,7 @@
                         document.getElementById('userHeaderImg').src = user.photoURL || 'https://via.placeholder.com/40';
                         document.getElementById('userHeaderImg').classList.remove('hidden');
                         document.getElementById('authBtn').classList.add('hidden');
-                        document.getElementById('planDisplay').textContent = `الفانوس: ${userData.dailyRate || 50} جوهرة / يوم`;
+                    
                         document.getElementById('editName').value = userData.name;
                         document.getElementById('editPhoto').value = user.photoURL || '';
                         handleTimer(userData.lastCollect);
@@ -321,7 +344,7 @@
                     sellerName: userData.name,
                     createdAt: Date.now()
                 });
-                alert("تم نشر المنتج بنجاح!");
+                showCustomAlert("تم نشر المنتج بنجاح!");
                 closeModal('addProductModal');
             } catch(e) { alert(e.message); }
         };
@@ -337,7 +360,7 @@
                         <img src="${p.img}" class="product-img">
                         <h4>${p.name}</h4>
                         <p style="font-size:13px; color:#555;">${p.desc}</p>
-                        <span class="price">${p.price} جوهرة</span>
+                        <span class="price"><i class="fas fa-star star-gem"></i> ${p.price} جوهرة</span>
                         <div class="seller-info">البائع: ${p.sellerName}</div>
                         <button class="btn-full btn-primary" onclick="buyProduct('${id}', ${p.price}, '${p.sellerId}')">شراء الآن</button>
                     </div>
@@ -369,13 +392,88 @@
                         });
                     }
 
-                    alert(`تمت عملية الشراء بنجاح! تم تحويل ${sellerNet} جوهرة للبائع بعد خصم العمولة.`);
+                    showCustomAlert(`تمت عملية الشراء بنجاح! تم تحويل ${sellerNet} جوهرة للبائع بعد خصم العمولة.`);
                 } catch(e) { alert("حدث خطأ في العملية"); }
             }
         };
 
-        // --- بقية الوظائف الأساسية ---
-    function showCustomAlert(message) {
+        // --- وظائف تسجيل الدخول والتسجيل ---
+        window.handleRegister = async () => {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const photo = document.getElementById('regPhoto').value.trim();
+            const ref = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // التحقق من صحة البيانات
+            if (!name || name.length < 2) {
+                document.getElementById('registerMessage').textContent = "الاسم يجب أن يكون على الأقل حرفين";
+                document.getElementById('registerMessage').style.color = "red";
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                document.getElementById('registerMessage').textContent = "البريد الإلكتروني غير صالح";
+                document.getElementById('registerMessage').style.color = "red";
+                return;
+            }
+            
+            if (!pass || pass.length < 6) {
+                document.getElementById('registerMessage').textContent = "كلمة المرور يجب أن تكون على الأقل 6 أحرف";
+                document.getElementById('registerMessage').style.color = "red";
+                return;
+            }
+            
+            try {
+                // التحقق من عدم تكرار البريد الإلكتروني
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    document.getElementById('registerMessage').textContent = "هذا البريد الإلكتروني مستخدم بالفعل!";
+                    document.getElementById('registerMessage').style.color = "red";
+                    return;
+                }
+                
+                document.getElementById('registerMessage').textContent = "جاري إنشاء الحساب...";
+                document.getElementById('registerMessage').style.color = "blue";
+                
+                // إنشاء حساب المستخدم
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { 
+                    displayName: name, 
+                    photoURL: photo || "https://via.placeholder.com/150" 
+                });
+                
+                // حفظ بيانات المستخدم في Firestore
+                await setDoc(doc(db, "users", res.user.uid), { 
+                    uid: res.user.uid, 
+                    name, 
+                    email, 
+                    myRefCode: ref, 
+                    gems: 10, 
+                    dailyRate: 50, 
+                    lastCollect: null,
+                    createdAt: new Date().toISOString()
+                });
+                
+                document.getElementById('registerMessage').showCustomAlert = "تم إنشاء الحساب بنجاح!";
+                document.getElementById('registerMessage').style.color = "green";
+                
+                setTimeout(() => {
+                    closeModal('authModal');
+                    document.getElementById('registerMessage').textContent = "";
+                }, 1500);
+                
+            } catch (e) {
+                document.getElementById('registerMessage').textContent = "حدث خطأ: " + e.message;
+                document.getElementById('registerMessage').style.color = "red";
+                console.error(e);
+            }
+        };
+
+        function showCustomAlert(message) {
   // إخفاء اسم الصفحة والروابط
   const originalTitle = document.title;
   document.title = "الموقع"; // اسم عام بدل اسم الصفحة الحقيقي
@@ -476,21 +574,21 @@
   // التركيز على الزر
   okButton.focus();
 }
-        window.handleRegister = async () => {
-            const name = document.getElementById('regName').value, email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value, photo = document.getElementById('regPhoto').value;
-            const ref = Math.floor(100000 + Math.random() * 900000).toString();
-            try {
-                const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await updateProfile(res.user, { displayName: name, photoURL: photo });
-                await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, name, email, myRefCode: ref, gems: 10, dailyRate: 50, lastCollect: null });
-                closeModal('authModal');
-            } catch (e) { alert(e.message); }
-        };
-
         window.handleLogin = async () => {
-            const email = document.getElementById('loginEmail').value, pass = document.getElementById('loginPass').value;
-            try { await signInWithEmailAndPassword(auth, email, pass); closeModal('authModal'); } catch (e) { alert(e.message); }
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            
+            if (!email || !pass) {
+                alert("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+                return;
+            }
+            
+            try { 
+                await signInWithEmailAndPassword(auth, email, pass); 
+                closeModal('authModal'); 
+            } catch (e) { 
+                showCustomAlert("خطأ في تسجيل الدخول: " + e.message); 
+            }
         };
 
         document.getElementById('collectBtn').onclick = async () => {
@@ -499,13 +597,14 @@
             if (userData.lastCollect && (now - userData.lastCollect < 86400000)) return;
             const rate = userData.dailyRate || 50;
             await updateDoc(doc(db, "users", currentUser.uid), { gems: (userData.gems || 0) + rate, lastCollect: now });
-            alert(`مبروك! استلمت ${rate} جوهرة`);
+            showCustomAlert(`مبروك! استلمت ${rate} جوهرة <i class="fas fa-star star-gem"></i>`);
         };
 
         window.buySub = async (rate, cost) => {
             if (userData.gems < cost) return alert("جواهرك لا تكفي!");
             await updateDoc(doc(db, "users", currentUser.uid), { gems: userData.gems - cost, dailyRate: rate });
-            alert("تمت الترقية!"); closeModal('subsModal');
+            showCustomAlert("تمت الترقية بنجاح!"); 
+            closeModal('subsModal');
         };
 
         function handleTimer(last) {
@@ -522,11 +621,20 @@
             };
             setInterval(update, 1000); update();
         }
+        
+        window.showCustomAlert = (message) => {
+            alert(message);
+        };
+        
         window.openNav = () => document.getElementById("mySidenav").style.width = "270px";
         window.closeNav = () => document.getElementById("mySidenav").style.width = "0";
         window.showModal = (id) => document.getElementById(id).style.display = 'flex';
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-        window.toggleAuth = () => { document.getElementById('loginFormSection').classList.toggle('hidden'); document.getElementById('registerFormSection').classList.toggle('hidden'); };
+        window.toggleAuth = () => { 
+            document.getElementById('loginFormSection').classList.toggle('hidden'); 
+            document.getElementById('registerFormSection').classList.toggle('hidden');
+            document.getElementById('registerMessage').textContent = "";
+        };
         window.logout = () => signOut(auth).then(() => location.reload());
     </script>
 </body>
